@@ -94,11 +94,13 @@ void DSCkeybushome::publishTextState(const std::string &idstr, uint8_t num, std:
 }
 #endif
 
-    DSCkeybushome::DSCkeybushome(byte dscClockPin, byte dscReadPin, byte dscWritePin, bool invertWrite)
+    DSCkeybushome::DSCkeybushome(byte dscClockPin, byte dscReadPin, byte dscWritePin, bool invertWrite, bool invertRead, , bool invertClk)
         : dscClockPin(dscClockPin),
           dscReadPin(dscReadPin),
           dscWritePin(dscWritePin),
-          invertWrite(invertWrite)
+          invertWrite(invertWrite),
+          invertRead(invertRead),
+          invertClk(invertClk)
     {
 
       alarmPanelPtr = this;
@@ -304,7 +306,7 @@ void DSCkeybushome::setup()
 
 // #else
 //       if (dscClockPin && dscReadPin )
-//         dsc.begin(dscClockPin, dscReadPin, dscWritePin, invertWrite);
+//         dsc.begin(dscClockPin, dscReadPin, dscWritePin, invertWrite, invertRead, invertClk);
 //       else
 //         dsc.begin();
 // #endif
@@ -336,7 +338,7 @@ void DSCkeybushome::setup()
       //ensure we run dsc setup on correct core.  This task is only setup to init the interrupts and pins, otherwise it's idle
       DSCkeybushome *_this = (DSCkeybushome *)args;
       if (_this->dscClockPin && _this->dscReadPin )
-        dsc.begin(_this->dscClockPin, _this->dscReadPin, _this->dscWritePin, _this->invertWrite);
+        dsc.begin(_this->dscClockPin, _this->dscReadPin, _this->dscWritePin, _this->invertWrite, _this->invertRead, _this->invertClk);
       else
         dsc.begin();
        unsigned long checkTime=_this->millis();
@@ -1553,7 +1555,7 @@ void DSCkeybushome::update()
 
         #else
               if (dscClockPin && dscReadPin )
-                dsc.begin(dscClockPin, dscReadPin, dscWritePin, invertWrite);
+                dsc.begin(dscClockPin, dscReadPin, dscWritePin, invertWrite, invertRead, invertClk);
               else
                 dsc.begin();
         #endif
