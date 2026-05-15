@@ -63,22 +63,24 @@ void IRAM_ATTR dscDataInterrupt_cb() {
 #endif
 
 
-dscKeybusInterface::dscKeybusInterface(byte setClockPin, byte setReadPin, byte setWritePin,bool setInvertWrite) {
+dscKeybusInterface::dscKeybusInterface(byte setClockPin, byte setReadPin, byte setWritePin,bool setInvertWrite,bool setInvertRead,bool setInvertClk) {
   dscKeybusInterfacePtr=this; 
 
-  dscClockPin = setClockPin;
-  dscReadPin = setReadPin;
-  dscWritePin = setWritePin;
-  invertWrite=setInvertWrite;
-  if (dscWritePin != 255 && dscWritePin > 0) virtualKeypad = true;
-  if (dscWritePin == dscReadPin) invertWrite=false;
-  processRedundantData = true;
-  displayTrailingBits = false;
-  processModuleData = false;
-  currentDefaultPartition=1;
-  pauseStatus = false;
-  running=false;
-  firstrun=true;
+dscClockPin = setClockPin;
+dscReadPin = setReadPin;
+dscWritePin = setWritePin;
+invertWrite=setInvertWrite;
+invertRead=setInvertRead;
+invertClk=setInvertClk;
+if (dscWritePin != 255 && dscWritePin > 0) virtualKeypad = true;
+if (dscWritePin == dscReadPin) invertWrite=false;
+processRedundantData = true;
+displayTrailingBits = false;
+processModuleData = false;
+currentDefaultPartition=1;
+pauseStatus = false;
+running=false;
+firstrun=true;
 
   // start expander
 
@@ -101,17 +103,18 @@ timer1Mux = portMUX_INITIALIZER_UNLOCKED;
 
 }
 
-void dscKeybusInterface::begin(byte setClockPin, byte setReadPin, byte setWritePin,bool setInvertWrite) {
+void dscKeybusInterface::begin(byte setClockPin, byte setReadPin, byte setWritePin,bool setInvertWrite,bool setInvertRead,bool setInvertClk) {
   
   if (setClockPin > 0 && setReadPin > 0 ) {  
     dscClockPin = setClockPin;
     dscReadPin = setReadPin;
     dscWritePin = setWritePin;
     invertWrite=setInvertWrite;
+    invertRead=setInvertRead;
+    invertClk=setInvertClk;
     virtualKeypad = false;
     if (dscWritePin != 255 && dscWritePin > 0) 
        virtualKeypad = true;
-      
   }
   if (dscWritePin == dscReadPin) {
 
@@ -716,7 +719,7 @@ dscKeybusInterface::dscClockInterrupt()
     #ifdef USE_ESP_IDF
         gpio_set_level((gpio_num_t) dscWritePin, !invertWrite);
     #else
-       digitalWrite(dscWritePin, !invertWrite ); // Restores the data line after a virtual keypad write
+       digitalWrite(dscWritePin, !invertWrite); // Restores the data line after a virtual keypad write
     #endif
     }
     previousClockHighTime = micros();
