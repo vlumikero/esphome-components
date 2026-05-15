@@ -270,7 +270,7 @@ class DSCkeybushome : public api::CustomAPIDevice, public PollingComponent
 #endif
 
     public:
-      DSCkeybushome(byte dscClockPin, byte dscReadPin, byte dscWritePin, bool setInvertWrite = true);
+      DSCkeybushome(byte dscClockPin, byte dscReadPin, byte dscWritePin, bool setInvertWrite = true, bool setInvertRead = false, bool setInvertClk = false);
 
 #if defined(ARDUINO_MQTT)
       std::function<void(const std::string &, uint8_t, std::string *)> textSensorCallback;
@@ -439,6 +439,8 @@ unsigned long micros() {
           dscReadPin,
           dscWritePin;
       bool invertWrite;
+      bool invertRead;
+      bool invertClk;
       bool firstrun;
       bool options;
       unsigned long beepTime,
