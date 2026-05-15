@@ -22,6 +22,8 @@ CONF_READPIN="dscreadpin"
 CONF_WRITEPIN="dscwritepin"
 CONF_CLOCKPIN="dscclockpin"
 CONF_INVERT_WRITE="invert_write"
+CONF_INVERT_READ="invert_read"
+CONF_INVERT_CLK="invert_clk"
 CONF_EXPANDER1="expanderaddr1"
 CONF_EXPANDER2="expanderaddr2"
 CONF_DEBOUNCE="debounce"
@@ -101,6 +103,8 @@ CONFIG_SCHEMA = cv.Schema(
     cv.Optional(CONF_WRITEPIN, default="255"): _validate_pins_for_chip(rx_pin=False), 
     cv.Optional(CONF_CLOCKPIN, default=""):  _validate_pins_for_chip(rx_pin=True),
     cv.Optional(CONF_INVERT_WRITE, default='true'): cv.boolean,
+    cv.Optional(CONF_INVERT_READ, default='true'): cv.boolean,
+    cv.Optional(CONF_INVERT_CLK, default='true'): cv.boolean,
     cv.Optional(CONF_EXPANDER1, default=0): cv.int_, 
     cv.Optional(CONF_EXPANDER2, default=0): cv.int_, 
     cv.Optional(CONF_REFRESHTIME):cv.int_,
@@ -181,7 +185,7 @@ async def to_code(config):
     if not config[CONF_EXPANDER1] and not config[CONF_EXPANDER2]:
         cg.add_define("DISABLE_EXPANDER")
 
-    var = cg.new_Pvariable(config[CONF_ID],config[CONF_CLOCKPIN],config[CONF_READPIN],config[CONF_WRITEPIN],config[CONF_INVERT_WRITE])
+    var = cg.new_Pvariable(config[CONF_ID],config[CONF_CLOCKPIN],config[CONF_READPIN],config[CONF_WRITEPIN],config[CONF_INVERT_WRITE],config[CONF_INVERT_READ],config[CONF_INVERT_CLK])
     if config[CONF_USE_ESP_IDF_TIMER] and CORE.is_esp32:
         cg.add_define("USE_ESP_IDF_TIMER")
     if CONF_ACCESSCODE in config:
