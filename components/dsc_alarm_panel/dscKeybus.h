@@ -154,10 +154,10 @@ class dscKeybusInterface {
 
  #endif
     // Initializes writes as disabled by default
-    dscKeybusInterface(byte setClockPin, byte setReadPin, byte setWritePin = 255,bool setInvertWrite=true);
+    dscKeybusInterface(byte setClockPin, byte setReadPin, byte setWritePin = 255,bool setInvertWrite=true,bool setInvertRead=true,bool setInvertClk=false);
 
     // Interface control
-    void begin(byte setClockPin=0, byte setReadPin=0, byte setWritePin=255,bool setInvertWrite=true);             // Initializes the stream output to Serial by default
+    void begin(byte setClockPin=0, byte setReadPin=0, byte setWritePin=255,bool setInvertWrite=true,bool setInvertClk=true,bool setInvertClk=true);             // Initializes the stream output to Serial by default
     bool loop();                                      // Returns true if valid panel data is available
     void stop();                                      // Disables the clock hardware interrupt and data timer interrupt
     void resetStatus();                               // Resets the state of all status components as changed for sketches to get the current status
@@ -449,25 +449,27 @@ class dscKeybusInterface {
     byte previousPgmOutputs[2];
 
 
-     byte dscClockPin;
-     byte dscReadPin;
-     byte dscWritePin;
-     bool invertWrite;
+    byte dscClockPin;
+    byte dscReadPin;
+    byte dscWritePin;
+    bool invertWrite;
     // byte writeByte, writeBit;
-     bool virtualKeypad;
-      char writeKey;
+    bool invertRead;
+    bool invertClk;
+    bool virtualKeypad;
+    char writeKey;
 
-     volatile bool writeAlarm;
-     volatile bool moduleDataDetected, moduleDataCaptured;
-     volatile unsigned long keybusTime;
-     volatile byte panelBufferLength;
-     volatile byte panelBuffer[dscBufferSize][dscReadSize];
-     volatile byte panelBufferBitCount[dscBufferSize], panelBufferByteCount[dscBufferSize];
-     volatile byte moduleBitCount, moduleByteCount;
+    volatile bool writeAlarm;
+    volatile bool moduleDataDetected, moduleDataCaptured;
+    volatile unsigned long keybusTime;
+    volatile byte panelBufferLength;
+    volatile byte panelBuffer[dscBufferSize][dscReadSize];
+    volatile byte panelBufferBitCount[dscBufferSize], panelBufferByteCount[dscBufferSize];
+    volatile byte moduleBitCount, moduleByteCount;
 
-     volatile byte isrPanelData[dscReadSize], isrPanelBitTotal, isrPanelBitCount, isrPanelByteCount;
-     volatile bool skipModuleBit;
-     volatile byte isrModuleData[dscReadSize];
+    volatile byte isrPanelData[dscReadSize], isrPanelBitTotal, isrPanelBitCount, isrPanelByteCount;
+    volatile bool skipModuleBit;
+    volatile byte isrModuleData[dscReadSize];
     
     //start expander
    
