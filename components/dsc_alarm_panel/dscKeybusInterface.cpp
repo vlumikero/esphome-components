@@ -118,37 +118,42 @@ void dscKeybusInterface::begin(byte setClockPin, byte setReadPin, byte setWriteP
   }
   if (dscWritePin == dscReadPin) {
 
-       #if defined (USE_ESP_IDF)
-        gpio_reset_pin((gpio_num_t)dscClockPin);
-        gpio_set_direction((gpio_num_t) dscClockPin, GPIO_MODE_INPUT);
-        gpio_pulldown_dis((gpio_num_t)dscClockPin);
-        gpio_pullup_en((gpio_num_t)dscClockPin);
-
-        gpio_reset_pin((gpio_num_t)dscReadPin);
-        gpio_set_direction((gpio_num_t)dscReadPin, GPIO_MODE_INPUT);
-        gpio_pulldown_dis((gpio_num_t)dscReadPin);
-        gpio_pullup_en((gpio_num_t)dscReadPin); 
-        #else
-        pinMode(dscClockPin, INPUT_PULLUP);
-        pinMode(dscReadPin, INPUT_PULLUP);
-        #endif
+    #if defined (USE_ESP_IDF)
+    gpio_reset_pin((gpio_num_t)dscClockPin);
+    gpio_set_direction((gpio_num_t) dscClockPin, GPIO_MODE_INPUT);
+    gpio_pulldown_dis((gpio_num_t)dscClockPin);
+    if (invertClk) gpio_pullup_en((gpio_num_t)dscClockPin);
+    else gpio_pullup_dis((gpio_num_t)dscClockPin);  
+      
+    gpio_reset_pin((gpio_num_t)dscReadPin);
+    gpio_set_direction((gpio_num_t)dscReadPin, GPIO_MODE_INPUT);
+    gpio_pulldown_dis((gpio_num_t)dscReadPin);
+    if (invertRead) gpio_pullup_en((gpio_num_t)dscReadPin);
+    else gpio_pullup_dis((gpio_num_t)dscReadPin);
+    
+    #else
+    pinMode(dscClockPin, invertClk ? INPUT_PULLUP : INPUT);
+    pinMode(dscReadPin, invertRead ? INPUT_PULLUP : INPUT);
+    #endif
 
     invertWrite=false;
   } else {
-       #if defined (USE_ESP_IDF)
-        gpio_reset_pin((gpio_num_t)dscClockPin);
-        gpio_set_direction((gpio_num_t)dscClockPin, GPIO_MODE_INPUT);
-        gpio_pulldown_dis((gpio_num_t)dscClockPin);
-        gpio_pullup_dis((gpio_num_t)dscClockPin);
+    #if defined (USE_ESP_IDF)
+    gpio_reset_pin((gpio_num_t)dscClockPin);
+    gpio_set_direction((gpio_num_t)dscClockPin, GPIO_MODE_INPUT);
+    gpio_pulldown_dis((gpio_num_t)dscClockPin);
+    if (invertClk) gpio_pullup_en((gpio_num_t)dscClockPin);
+    else gpio_pullup_dis((gpio_num_t)dscClockPin);  
 
-        gpio_reset_pin((gpio_num_t)dscReadPin);
-        gpio_set_direction((gpio_num_t)dscReadPin, GPIO_MODE_INPUT);
-        gpio_pulldown_dis((gpio_num_t)dscReadPin);
-        gpio_pullup_dis((gpio_num_t)dscReadPin); 
-        #else
-         pinMode(dscClockPin, INPUT);
-         pinMode(dscReadPin, INPUT); 
-        #endif
+    gpio_reset_pin((gpio_num_t)dscReadPin);
+    gpio_set_direction((gpio_num_t)dscReadPin, GPIO_MODE_INPUT);
+    gpio_pulldown_dis((gpio_num_t)dscReadPin);
+    if (invertRead) gpio_pullup_en((gpio_num_t)dscReadPin);
+    else gpio_pullup_dis((gpio_num_t)dscReadPin);
+    #else
+    pinMode(dscClockPin, invertClk ? INPUT_PULLUP : INPUT);
+    pinMode(dscReadPin, invertRead ? INPUT_PULLUP : INPUT);
+    #endif
 
  
     if (virtualKeypad) {
@@ -695,9 +700,9 @@ dscKeybusInterface::dscClockInterrupt()
   
   // Panel sends data while the clock is high
   #ifdef USE_ESP_IDF
-  if (gpio_get_level((gpio_num_t) dscClockPin)==HIGH) {
+  if ((gpio_get_level((gpio_num_t) dscClockPin)==HIGH) != invertClk) {
   #else
-  if (digitalRead(dscClockPin) == HIGH) {
+  if ((digitalRead(dscClockPin) == HIGH) != invertClk) {
   #endif
     if (virtualKeypad ){
 
@@ -868,11 +873,11 @@ dscKeybusInterface::dscClockInterrupt()
   #endif
 
   // Panel sends data while the clock is high
-  #ifdef USE_ESP_IDF
-  if (gpio_get_level((gpio_num_t) dscClockPin)==HIGH) {
-  #else
-  if (digitalRead(dscClockPin) == HIGH) {
-  #endif
+    #ifdef USE_ESP_IDF
+    if ((gpio_get_level((gpio_num_t) dscClockPin)==HIGH) != invertClk) {
+    #else
+    if ((digitalRead(dscClockPin) == HIGH) != invertClk) {  // ✓ Rätt
+    #endif
 
     // Reads panel data and sets data counters
     if (isrPanelByteCount < dscReadSize) { // Limits Keybus data bytes to dscReadSize
@@ -880,9 +885,9 @@ dscKeybusInterface::dscClockInterrupt()
         // Data is captured in each byte by shifting left by 1 bit and writing to bit 0
         isrPanelData[isrPanelByteCount] <<= 1;
   #ifdef USE_ESP_IDF
-       if (gpio_get_level((gpio_num_t) dscReadPin)==HIGH) {
+       if ((gpio_get_level((gpio_num_t) dscReadPin)==HIGH) != invertRead) {
   #else
-        if (digitalRead(dscReadPin) == HIGH) {
+        if ((digitalRead(dscReadPin) == HIGH) != invertRead) {
   #endif
           isrPanelData[isrPanelByteCount] |= 1;
         }
@@ -928,9 +933,9 @@ dscKeybusInterface::dscClockInterrupt()
       if (isrPanelBitCount < 8) {
         isrModuleData[isrPanelByteCount] <<= 1;
         #ifdef USE_ESP_IDF
-        if (gpio_get_level((gpio_num_t) dscReadPin)==HIGH) {
+        if ((gpio_get_level((gpio_num_t) dscReadPin)==HIGH) != invertRead) {
         #else
-        if (digitalRead(dscReadPin) == HIGH) {
+        if ((digitalRead(dscReadPin) == HIGH) != invertRead) {
         #endif
           isrModuleData[isrPanelByteCount] |= 1;
         } else {
