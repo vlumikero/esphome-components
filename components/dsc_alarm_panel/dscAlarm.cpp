@@ -94,7 +94,7 @@ void DSCkeybushome::publishTextState(const std::string &idstr, uint8_t num, std:
 }
 #endif
 
-    DSCkeybushome::DSCkeybushome(byte dscClockPin, byte dscReadPin, byte dscWritePin, bool invertWrite, bool invertRead, , bool invertClk)
+    DSCkeybushome::DSCkeybushome(byte dscClockPin, byte dscReadPin, byte dscWritePin, bool invertWrite, bool invertRead, bool invertClk)
         : dscClockPin(dscClockPin),
           dscReadPin(dscReadPin),
           dscWritePin(dscWritePin),
