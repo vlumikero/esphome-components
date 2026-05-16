@@ -157,7 +157,7 @@ class dscKeybusInterface {
     dscKeybusInterface(byte setClockPin, byte setReadPin, byte setWritePin = 255,bool setInvertWrite=true,bool setInvertRead=true,bool setInvertClk=false);
 
     // Interface control
-    void begin(byte setClockPin=0, byte setReadPin=0, byte setWritePin=255,bool setInvertWrite=true,bool setInvertClk=true,bool setInvertClk=true);             // Initializes the stream output to Serial by default
+    void begin(byte setClockPin=0, byte setReadPin=0, byte setWritePin=255,bool setInvertWrite=true,bool setInvertRead=true,bool setInvertClk=true);             // Initializes the stream output to Serial by default
     bool loop();                                      // Returns true if valid panel data is available
     void stop();                                      // Disables the clock hardware interrupt and data timer interrupt
     void resetStatus();                               // Resets the state of all status components as changed for sketches to get the current status
